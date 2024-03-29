@@ -57,5 +57,43 @@
       "home": "W",
       "insert_computation": "Insert"
     }
+  ],
+
+  "DataTableView": [
+    {
+      "set_color_range": "Ctrl+R"
+    }
+  ],
+
+  "TabularBase": [
+    {
+      "bin": "Ctrl+B",
+      "hex": "Ctrl+H",
+      "physical": "Ctrl+P",
+      "save_active_subplot_channels": "Ctrl+S",
+      "increase_font": "Ctrl+[",
+      "decrease_font": "Ctrl+]"
+    }
+  ],
+
+  "DataFrameViewer": [
+    {
+      "copy": "Ctrl+C"
+    }
+  ],
+
+  "FileWidget": [
+    {
+      "search": "Ctrl+F",
+      "toggle_full_screen": "F11",
+      "tile_sub_windows_vertically": "Shift+V",
+      "tile_sub_windows_horizontally": "Shift+H",
+      "cascade_sub_windows": "Shift+C",
+      "tile_sub_windows_in_a_grid": "Shift+T",
+      "toggle_sub_windows_frames": "Shift+Alt+F",
+      "toggle_channel_view": "Shift+L",
+      "set_line_style": "Period"
+    }
   ]
+
 }

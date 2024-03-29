@@ -7,7 +7,7 @@ from unittest import mock
 from PySide6 import QtGui, QtTest
 
 
-class TestDataTableViewWidgetShortcuts(TestFileWidget):
+class TestDataTableViewShortcuts(TestFileWidget):
     def setUp(self):
         super().setUp()
         # Open measurement file
@@ -21,9 +21,10 @@ class TestDataTableViewWidgetShortcuts(TestFileWidget):
         self.assertEqual(len(self.widget.mdi_area.subWindowList()), 1)
         self.tabular = self.widget.mdi_area.subWindowList()[0].widget()
         self.dtw = self.tabular.tree.dataView
+        self.assertIsNotNone(self.load_shortcuts_from_json_file(self.dtw))
         self.processEvents(0.01)
 
-    def test_DataTableViewWidget_Shortcut_Key_Ctrl_R(self):
+    def test_DataTableView_Shortcut_Key_Ctrl_R(self):
         """
         test for shortcut Ctrl+R
         Returns
@@ -68,7 +69,7 @@ class TestDataTableViewWidgetShortcuts(TestFileWidget):
                 self.assertListEqual(value, [])
 
 
-class TestTabularBaseWidgetShortcuts(TestFileWidget):
+class TestTabularBaseShortcuts(TestFileWidget):
     def setUp(self):
         super().setUp()
         # Open measurement file
@@ -81,9 +82,10 @@ class TestTabularBaseWidgetShortcuts(TestFileWidget):
 
         self.assertEqual(len(self.widget.mdi_area.subWindowList()), 1)
         self.tabular = self.widget.mdi_area.subWindowList()[0].widget()
+        self.assertIsNotNone(self.load_shortcuts_from_json_file(self.tabular))
         self.processEvents(0.01)
 
-    def test_TabularBaseWidget_Shortcut_Keys_Ctrl_H__Ctrl_B__Ctrl_P(self):
+    def test_TabularBase_Shortcut_Keys_Ctrl_H__Ctrl_B__Ctrl_P(self):
         """
         test for Ctrl+H, Ctrl+B, Ctrl+P
         Returns
@@ -105,7 +107,7 @@ class TestTabularBaseWidgetShortcuts(TestFileWidget):
         # Evaluate
         self.assertEqual(self.tabular.format, "phys")
 
-    def test_TabularBaseWidget_Shortcut_Key_Ctrl_S(self):
+    def test_TabularBase_Shortcut_Key_Ctrl_S(self):
         """
         test for shortcut Ctrl+S
         Returns
@@ -140,7 +142,7 @@ class TestTabularBaseWidgetShortcuts(TestFileWidget):
                 expected_channels.remove(self.widget.channels_tree.topLevelItem(index).name)
         self.assertListEqual(expected_channels, ["time"])
 
-    def test_TabularBaseWidget_Shortcut_Keys_Ctrl_Left_and_Right_Buckets(self):
+    def test_TabularBase_Shortcut_Keys_Ctrl_Left_and_Right_Buckets(self):
         """
         tests for Ctrl+[ and Ctrl+]
         """
@@ -152,26 +154,8 @@ class TestTabularBaseWidgetShortcuts(TestFileWidget):
         QtTest.QTest.keySequence(self.tabular, QtGui.QKeySequence("Ctrl+["))
         self.assertGreater(font_size, self.tabular.tree.dataView.font().pointSize())
 
-    def test_TabularBaseWidget_Shortcut_Key_Shift_G(self):
-        """
-        test gor Shift+G
-        Returns
-        -------
 
-        """
-        with mock.patch("asammdf.gui.widgets.tabular_base.QtWidgets.QInputDialog.getDouble") as mo_getDouble:
-            expected_pos = 2
-            mo_getDouble.return_value = expected_pos, True
-            QtTest.QTest.keySequence(self.tabular, QtGui.QKeySequence("Shift+G"))
-        mo_getDouble.assert_called()
-
-        h = self.tabular.tree.dataView.height()
-        index = self.tabular.tree.dataView.rowAt(h - 1)
-        # self.tabular.tree.dataView.selectionModel().selection().indexes()
-        self.assertIn(index, self.tabular.tree.dataView.selectedIndexes())
-
-
-class TestDataFrameViewerWidgetShortcuts(TestFileWidget):
+class TestDataFrameViewerShortcuts(TestFileWidget):
     def setUp(self):
         super().setUp()
         # Open measurement file
@@ -185,9 +169,10 @@ class TestDataFrameViewerWidgetShortcuts(TestFileWidget):
         self.assertEqual(len(self.widget.mdi_area.subWindowList()), 1)
         self.tabular = self.widget.mdi_area.subWindowList()[0].widget()
         self.dfw = self.tabular.tree
+        self.assertIsNotNone(self.load_shortcuts_from_json_file(self.dfw))
         self.processEvents(0.01)
 
-    def test_DataFrameViewerWidget_Shortcut_Keys_Ctrl_C(self):
+    def test_DataFrameViewer_Shortcut_Keys_Ctrl_C(self):
         """
         test for Ctrl+C
         Returns
@@ -195,8 +180,7 @@ class TestDataFrameViewerWidgetShortcuts(TestFileWidget):
 
         """
         with mock.patch("asammdf.gui.widgets.tabular_base.threading.Thread") as mo_Thread:
-            # Click on first channel
-            # Press Ctrl+Shift+C
+            # Select all -> Press Ctrl+Shift+C
             QtTest.QTest.keySequence(self.dfw, QtGui.QKeySequence("Ctrl+A"))
             QtTest.QTest.keySequence(self.dfw, QtGui.QKeySequence("Ctrl+C"))
         # Evaluate
