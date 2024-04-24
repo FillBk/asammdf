@@ -41,7 +41,7 @@ class TestTabChannels(TestFileWidget):
             )
             # Evaluate
             self.assertEqual(len(self.widget.mdi_area.subWindowList()), 1)
-            widget_types = self.get_subwindows()
+            widget_types = self.get_sub_windows()
             self.assertIn("Plot", widget_types)
 
     @mock.patch("asammdf.gui.widgets.file.ErrorDialog")
@@ -170,7 +170,7 @@ class TestTabChannels(TestFileWidget):
                 self.assertEqual(len(self.widget.mdi_area.subWindowList()), 2)
                 mc_ErrorDialog.assert_called()
                 mc_ErrorDialog.reset_mock()
-                widget_types = self.get_subwindows()
+                widget_types = self.get_sub_windows()
                 self.assertNotIn("Plot", widget_types)
 
         # Case 4
@@ -191,7 +191,7 @@ class TestTabChannels(TestFileWidget):
                 self.assertEqual(len(self.widget.mdi_area.subWindowList()), 2)
                 mc_ErrorDialog.assert_called()
                 mc_ErrorDialog.reset_mock()
-                widget_types = self.get_subwindows()
+                widget_types = self.get_sub_windows()
                 self.assertNotIn("Numeric", widget_types)
 
         # Case 5
@@ -212,7 +212,7 @@ class TestTabChannels(TestFileWidget):
                 self.assertEqual(len(self.widget.mdi_area.subWindowList()), 2)
                 mc_ErrorDialog.assert_called()
                 mc_ErrorDialog.reset_mock()
-                widget_types = self.get_subwindows()
+                widget_types = self.get_sub_windows()
                 self.assertNotIn("Tabular", widget_types)
 
         # Case 6
@@ -229,7 +229,7 @@ class TestTabChannels(TestFileWidget):
                 # Evaluate
                 mo_load_window.assert_called()
                 self.assertEqual(len(self.widget.mdi_area.subWindowList()), 3)
-                widget_types = self.get_subwindows()
+                widget_types = self.get_sub_windows()
                 self.assertListEqual(["Numeric", "Plot", "Tabular"], widget_types)
 
         mc_file_ErrorDialog.assert_not_called()
@@ -454,7 +454,7 @@ class TestTabChannels(TestFileWidget):
         while iterator.value():
             item = iterator.value()
             item.setCheckState(0, QtCore.Qt.CheckState.Unchecked)
-            self.assertFalse(item.checkState(0))
+            self.assertEqual(item.checkState(0), QtCore.Qt.CheckState.Unchecked)
             iterator += 1
 
         # Switch ComboBox to "Internal file structure"
@@ -584,7 +584,7 @@ class TestTabChannels(TestFileWidget):
                 iterator = QtWidgets.QTreeWidgetItemIterator(self.widget.channels_tree)
                 while iterator.value():
                     item = iterator.value()
-                    self.assertFalse(item.checkState(0))
+                    self.assertEqual(item.checkState(0), QtCore.Qt.CheckState.Unchecked)
                     iterator += 1
 
         # Case 1:
@@ -644,7 +644,7 @@ class TestTabChannels(TestFileWidget):
                     iterator += 1
                 self.assertEqual(2, checked_channels)
                 self.assertEqual(len(self.widget.mdi_area.subWindowList()), 1)
-                widget_types = self.get_subwindows()
+                widget_types = self.get_sub_windows()
                 self.assertIn("Plot", widget_types)
 
     def test_PushButton_CreateWindow(self):
@@ -696,7 +696,7 @@ class TestTabChannels(TestFileWidget):
                 QtTest.QTest.mouseClick(self.widget.create_window_btn, QtCore.Qt.MouseButton.LeftButton)
             # Evaluate
             self.assertEqual(len(self.widget.mdi_area.subWindowList()), 1)
-            widget_types = self.get_subwindows()
+            widget_types = self.get_sub_windows()
             self.assertIn("Plot", widget_types)
 
         # Case 2:
@@ -711,7 +711,7 @@ class TestTabChannels(TestFileWidget):
                 QtTest.QTest.mouseClick(self.widget.create_window_btn, QtCore.Qt.MouseButton.LeftButton)
             # Evaluate
             self.assertEqual(len(self.widget.mdi_area.subWindowList()), 2)
-            widget_types = self.get_subwindows()
+            widget_types = self.get_sub_windows()
             self.assertIn("Numeric", widget_types)
             numeric_data = self.widget.mdi_area.subWindowList()[1].widget().channels.dataView
             numeric_channel = numeric_data.model().data(numeric_data.model().index(0, 0))
@@ -726,7 +726,7 @@ class TestTabChannels(TestFileWidget):
                 QtTest.QTest.mouseClick(self.widget.create_window_btn, QtCore.Qt.MouseButton.LeftButton)
             # Evaluate
             self.assertEqual(len(self.widget.mdi_area.subWindowList()), 3)
-            widget_types = self.get_subwindows()
+            widget_types = self.get_sub_windows()
             self.assertIn("Tabular", widget_types)
 
         # Case 4:
@@ -738,7 +738,7 @@ class TestTabChannels(TestFileWidget):
                 QtTest.QTest.mouseClick(self.widget.create_window_btn, QtCore.Qt.MouseButton.LeftButton)
             # Evaluate
             self.assertEqual(len(self.widget.mdi_area.subWindowList()), 4)
-            widget_types = self.get_subwindows()
+            widget_types = self.get_sub_windows()
             self.assertIn("Plot", widget_types)
             plot_widget = self.widget.mdi_area.subWindowList()[3].widget()
             plot_channel = plot_widget.channel_selection.topLevelItem(0).text(0)

@@ -779,6 +779,16 @@ class TestContextMenu(TestPlotWidget):
         # Add Channels to Group
         group_channel = self.plot.channel_selection.findItems("A", QtCore.Qt.MatchFlags())[0]
         self.move_channel_to_group(src=self.plot_channel_a, dst=group_channel)
+        self.processEvents(1)
+        if sys.platform != "win32":
+            QtTest.QTest.mouseClick(
+                self.plot.plot.viewport(),
+                QtCore.Qt.MouseButton.LeftButton,
+                QtCore.Qt.KeyboardModifiers(),
+                QtCore.QPoint(10, 10),
+            )
+            for _ in range(100):
+                self.processEvents(0.1)
 
         # Ensure that all items are enabled
         count = self.plot.channel_selection.topLevelItemCount()
