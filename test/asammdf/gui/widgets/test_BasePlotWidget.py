@@ -1,9 +1,12 @@
+import json
 import pathlib
+import time
+from asammdf.gui.widgets.tree import get_data
 from test.asammdf.gui.test_base import DragAndDrop
 from test.asammdf.gui.widgets.test_BaseFileWidget import TestFileWidget
 from unittest import mock
 
-from PySide6 import QtCore, QtTest, QtWidgets
+from PySide6 import QtCore, QtTest, QtWidgets, QtGui
 from PySide6.QtCore import QCoreApplication, QPoint, QPointF, Qt
 from PySide6.QtGui import QInputDevice, QPointingDevice, QWheelEvent
 from PySide6.QtWidgets import QWidget
@@ -86,19 +89,76 @@ class TestPlotWidget(TestFileWidget):
             while not mo_action.text.called:
                 self.processEvents(0.02)
 
+    def drag_n_drop(self, drag_point, drop_point):
+        def wait(ms: int = 1):
+            QtTest.QTest.qWait(ms)
+
+        class StartDragThread(QtCore.QThread):
+            def __init__(self, cs=self.plot.channel_selection):
+                super().__init__()
+                self.cs = cs
+
+            def run(self):
+                time.sleep(0.1)
+                self.cs.startDrag(Qt.DropAction.MoveAction)
+                wait(100)
+
+        # drop_point.setY(drop_point.y() + 28)
+        cs = self.plot.channel_selection
+        src = cs.itemAt(drag_point)
+        if not src.isSelected():
+            src.setSelected(True)
+
+        dst = cs.itemAt(drop_point)
+        dst_children = dst.childCount()
+        if dst.isSelected():
+            dst.setSelected(False)
+        mime_data = QtCore.QMimeData()
+        data = json.dumps(get_data(self.plot, [src])).encode()
+        mime_data.setData("application/octet-stream-asammdf", QtCore.QByteArray(data))
+
+        QtTest.QTest.mouseMove(cs, QPoint(drag_point.x(), drag_point.y()))
+        wait(10)
+
+        # QtTest.QTest.mousePress(ch, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier, drag_pos)
+        start_drag_thread = StartDragThread(cs)
+        start_drag_thread.start()
+        start_drag_thread.quit()
+
+        for y in range(drag_point.y(), drop_point.y(), 1 if drag_point.y() < drop_point.y() else -1):
+            move_point = QPoint(drag_point.x(), y)
+            QtTest.QTest.mouseMove(cs, move_point)
+            wait(1)
+
+        event = QtGui.QDropEvent(
+            drop_point,
+            Qt.DropAction.MoveAction,
+            mime_data,
+            Qt.MouseButton.LeftButton,
+            Qt.NoModifier
+        )
+        cs.dropEvent(event)
+
+        wait(10)
+        self.processEvents(1)
+        # self.assertEqual(dst_children + 1, dst.childCount())
+
     def move_channel_to_group(self, plot=None, src=None, dst=None):
         if not plot and self.plot:
             plot = self.plot
+        cs = plot.channel_selection
+        drag_position = cs.visualItemRect(src).center()
+        drop_position = cs.visualItemRect(dst).center()
 
-        drag_position = plot.channel_selection.visualItemRect(src).center()
-        drop_position = plot.channel_selection.visualItemRect(dst).center()
-
-        DragAndDrop(
-            src_widget=plot.channel_selection,
-            dst_widget=plot.channel_selection,
-            src_pos=drag_position,
-            dst_pos=drop_position,
-        )
+        if QtCore.qVersion() in ('6.7.0', '6.6.0'):
+            self.drag_n_drop(drag_position, drop_position)
+        else:  # Perform Drag and Drop
+            DragAndDrop(
+                src_widget=cs,
+                dst_widget=cs,
+                src_pos=drag_position,
+                dst_pos=drop_position,
+            )
         self.processEvents(0.05)
 
     def wheel_action(self, w: QWidget, x: float, y: float, angle_delta: int):
