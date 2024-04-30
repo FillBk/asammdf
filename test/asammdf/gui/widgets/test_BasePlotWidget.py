@@ -89,46 +89,55 @@ class TestPlotWidget(TestFileWidget):
             while not mo_action.text.called:
                 self.processEvents(0.02)
 
-    def drag_n_drop(self, drag_point, drop_point):
+    def drag_n_drop(self, src, dst):
         def wait(ms: int = 1):
             QtTest.QTest.qWait(ms)
 
+        def getIntEquidistantPoints(x1: int, y1: int, x2: int, y2: int):
+            def l(v0, v1, i):
+                return v0 + i * (v1 - v0)
+
+            n = int(((((x2 - x1) ** 2) + ((y2 - y1) ** 2)) ** 0.5))
+            return [
+                (int(x), int(y)) for x, y in [(l(x1, x2, 1. / n * i), l(y1, y2, 1. / n * i)) for i in range(n + 1)]
+            ]
+
         class StartDragThread(QtCore.QThread):
-            def __init__(self, cs=self.plot.channel_selection):
+            def __init__(self, source=self.plot.channel_selection):
                 super().__init__()
-                self.cs = cs
+                self.src = source
 
             def run(self):
                 time.sleep(0.1)
-                self.cs.startDrag(Qt.DropAction.MoveAction)
-                wait(100)
+                self.src.startDrag(Qt.DropAction.MoveAction)
+                wait()
+        src_widget = src.treeWidget()
+        dst_widget = self.plot.channel_selection
+        drag_x, drag_y = src_widget.visualItemRect(src).center()
+        drop_x, drop_y = dst_widget.visualItemRect(dst).center()
 
-        # drop_point.setY(drop_point.y() + 28)
-        cs = self.plot.channel_selection
-        src = cs.itemAt(drag_point)
-        if not src.isSelected():
-            src.setSelected(True)
-
-        dst = cs.itemAt(drop_point)
-        dst_children = dst.childCount()
-        if dst.isSelected():
-            dst.setSelected(False)
+        if src_widget is self.plot.channel_selection:
+            if not src.isSelected():
+                src.setSelected(True)
+            if dst.isSelected():
+                dst.setSelected(False)
         mime_data = QtCore.QMimeData()
         data = json.dumps(get_data(self.plot, [src])).encode()
         mime_data.setData("application/octet-stream-asammdf", QtCore.QByteArray(data))
 
-        QtTest.QTest.mouseMove(cs, QPoint(drag_point.x(), drag_point.y()))
-        wait(10)
+        QtTest.QTest.mouseMove(src_widget, QPoint(drag_x, drag_y))
+        wait()
 
-        # QtTest.QTest.mousePress(ch, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier, drag_pos)
-        start_drag_thread = StartDragThread(cs)
+        start_drag_thread = StartDragThread(src_widget)
         start_drag_thread.start()
+        start_drag_thread.wait(10)
         start_drag_thread.quit()
+        start_drag_thread.terminate()
 
-        for y in range(drag_point.y(), drop_point.y(), 1 if drag_point.y() < drop_point.y() else -1):
-            move_point = QPoint(drag_point.x(), y)
-            QtTest.QTest.mouseMove(cs, move_point)
-            wait(1)
+        for x, y in getIntEquidistantPoints(drag_x, drag_y, drop_x, drop_y):
+            move_point = QPoint(x, y)
+            QtTest.QTest.mouseMove(src_widget, move_point)
+            wait()
 
         event = QtGui.QDropEvent(
             drop_point,
@@ -137,11 +146,10 @@ class TestPlotWidget(TestFileWidget):
             Qt.MouseButton.LeftButton,
             Qt.NoModifier
         )
-        cs.dropEvent(event)
+        dst_widget.dropEvent(event)
 
         wait(10)
         self.processEvents(1)
-        # self.assertEqual(dst_children + 1, dst.childCount())
 
     def move_channel_to_group(self, plot=None, src=None, dst=None):
         if not plot and self.plot:
@@ -151,7 +159,7 @@ class TestPlotWidget(TestFileWidget):
         drop_position = cs.visualItemRect(dst).center()
 
         if QtCore.qVersion() in ('6.7.0', '6.6.0'):
-            self.drag_n_drop(drag_position, drop_position)
+            self.drag_n_drop(src, dst)
         else:  # Perform Drag and Drop
             DragAndDrop(
                 src_widget=cs,

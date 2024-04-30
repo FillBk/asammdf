@@ -538,7 +538,7 @@ class TestChannelsTreeWidgetShortcuts(TestPlotWidget):
         QTest.mouseClick(
             plot.plot.viewport(),
             Qt.MouseButton.LeftButton,
-            Qt.KeyboardModifiers(),
+            Qt.KeyboardModifier.NoModifier,
             QPoint(int(plot.plot.width() / 2), int(plot.plot.height() / 2)),
         )
         self.processEvents(0.1)
@@ -564,7 +564,7 @@ class TestChannelsTreeWidgetShortcuts(TestPlotWidget):
         QTest.mouseClick(
             plot.plot.viewport(),
             Qt.MouseButton.LeftButton,
-            Qt.KeyboardModifiers(),
+            Qt.KeyboardModifier.NoModifier,
             QPoint(int(plot.plot.width() / 2), int(plot.plot.height() / 2)),
         )
         self.processEvents(1)
