@@ -111,42 +111,49 @@ class TestPlotWidget(TestFileWidget):
                 time.sleep(0.1)
                 self.src.startDrag(Qt.DropAction.MoveAction)
                 wait()
+
         src_widget = src.treeWidget()
         dst_widget = self.plot.channel_selection
-        drag_x, drag_y = src_widget.visualItemRect(src).center()
-        drop_x, drop_y = dst_widget.visualItemRect(dst).center()
+        drag_x, drag_y = src_widget.visualItemRect(src).center().x(), src_widget.visualItemRect(src).center().y() + 28
+        drop_x, drop_y = dst_widget.visualItemRect(dst).center().x(), dst_widget.visualItemRect(dst).center().y() + 28
 
-        if src_widget is self.plot.channel_selection:
-            if not src.isSelected():
-                src.setSelected(True)
-            if dst.isSelected():
-                dst.setSelected(False)
+        if not src.isSelected():
+            src.setSelected(True)
+        if dst.isSelected():
+            dst.setSelected(False)
         mime_data = QtCore.QMimeData()
         data = json.dumps(get_data(self.plot, [src])).encode()
         mime_data.setData("application/octet-stream-asammdf", QtCore.QByteArray(data))
 
-        QtTest.QTest.mouseMove(src_widget, QPoint(drag_x, drag_y))
+        QtTest.QTest.mouseMove(src_widget, QPoint(drag_x, drag_y + 28))
         wait()
-
         start_drag_thread = StartDragThread(src_widget)
         start_drag_thread.start()
-        start_drag_thread.wait(10)
         start_drag_thread.quit()
-        start_drag_thread.terminate()
 
         for x, y in getIntEquidistantPoints(drag_x, drag_y, drop_x, drop_y):
             move_point = QPoint(x, y)
+            # event = QtGui.QDragMoveEvent(
+            #     move_point,
+            #     Qt.DropAction.MoveAction,
+            #     mime_data,
+            #     Qt.MouseButton.LeftButton,
+            #     Qt.NoModifier
+            # )
             QtTest.QTest.mouseMove(src_widget, move_point)
+            # dst_widget.dragMoveEvent(event)
             wait()
 
         event = QtGui.QDropEvent(
-            drop_point,
+            QPoint(drop_x, drop_y),
             Qt.DropAction.MoveAction,
             mime_data,
             Qt.MouseButton.LeftButton,
             Qt.NoModifier
         )
         dst_widget.dropEvent(event)
+        wait(10)
+        start_drag_thread.terminate()
 
         wait(10)
         self.processEvents(1)
@@ -155,12 +162,12 @@ class TestPlotWidget(TestFileWidget):
         if not plot and self.plot:
             plot = self.plot
         cs = plot.channel_selection
-        drag_position = cs.visualItemRect(src).center()
-        drop_position = cs.visualItemRect(dst).center()
 
         if QtCore.qVersion() in ('6.7.0', '6.6.0'):
             self.drag_n_drop(src, dst)
         else:  # Perform Drag and Drop
+            drag_position = cs.visualItemRect(src).center()
+            drop_position = cs.visualItemRect(dst).center()
             DragAndDrop(
                 src_widget=cs,
                 dst_widget=cs,

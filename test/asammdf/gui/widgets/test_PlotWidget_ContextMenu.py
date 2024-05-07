@@ -344,7 +344,6 @@ class TestContextMenu(TestPlotWidget):
             position = self.plot.channel_selection.visualItemRect(group_channel_a).center()
             self.context_menu(action_text="Copy display properties [Ctrl+Shift+C]", position=position)
             clipboard = QtWidgets.QApplication.instance().clipboard().text()
-            print(clipboard)
             try:
                 content = json.loads(clipboard)
             except JSONDecodeError:
@@ -366,7 +365,6 @@ class TestContextMenu(TestPlotWidget):
             position = self.plot.channel_selection.visualItemRect(group_channel_a).center()
             self.context_menu(action_text="Copy display properties [Ctrl+Shift+C]", position=position)
             clipboard = QtWidgets.QApplication.instance().clipboard().text()
-            print(clipboard)
             try:
                 content = json.loads(clipboard)
             except JSONDecodeError:
