@@ -129,19 +129,10 @@ class TestPlotWidget(TestFileWidget):
         wait()
         start_drag_thread = StartDragThread(src_widget)
         start_drag_thread.start()
-        start_drag_thread.quit()
 
         for x, y in getIntEquidistantPoints(drag_x, drag_y, drop_x, drop_y):
             move_point = QPoint(x, y)
-            # event = QtGui.QDragMoveEvent(
-            #     move_point,
-            #     Qt.DropAction.MoveAction,
-            #     mime_data,
-            #     Qt.MouseButton.LeftButton,
-            #     Qt.NoModifier
-            # )
             QtTest.QTest.mouseMove(src_widget, move_point)
-            # dst_widget.dragMoveEvent(event)
             wait()
 
         event = QtGui.QDropEvent(
@@ -153,7 +144,10 @@ class TestPlotWidget(TestFileWidget):
         )
         dst_widget.dropEvent(event)
         wait(10)
-        start_drag_thread.terminate()
+
+        start_drag_thread.quit()
+        if not start_drag_thread.isFinished():
+            start_drag_thread.terminate()
 
         wait(10)
         self.processEvents(1)
