@@ -1,5 +1,7 @@
 import json
 import os
+from random import randint
+
 from test.asammdf.gui.test_base import TestBase
 from unittest import mock
 
@@ -86,7 +88,7 @@ class TestFileWidget(TestBase):
                 iterator += 1
         return selected_channel
 
-    def add_channels(self, channels_list: list, widget=None):
+    def add_channels(self, channels_list: list = None, widget=None) -> list:
         """
         Add channels to the widget from a list using channels indexes or channels names
         Add channels to the list <self.channels>
@@ -99,20 +101,22 @@ class TestFileWidget(TestBase):
             None: if one channel or widget does not exist;
             self.channels: if all channels were found.
         """
+        if channels_list is None:
+            channels_list = [randint(5, self.widget.channels_tree.topLevelItemCount() - 10)]
         if not isinstance(channels_list, list):
-            return
+            return []
         # Ensure "Natural sort" mode for channel view
         self.widget.channel_view.setCurrentIndex(0)
         self.processEvents(0.1)
         windows_list = self.widget.mdi_area.subWindowList()
         if len(windows_list) == 0:
-            return
+            return []
         else:
             if widget is None:
                 widget = windows_list[0].widget()
             else:
                 if widget not in [w.widget() for w in windows_list]:
-                    return
+                    return []
 
         channels = []
         for channel in channels_list:
@@ -128,8 +132,8 @@ class TestFileWidget(TestBase):
             len(channels_list),
             len(channels),
             msg=f"Not all channels from given list was found!      \n"
-            f"Given channels:\n{channels_list} \nFounded channels: \n"
-            f"\n{channels}\n++++++++++++++++++++\nwidget:\t\t{widget}",
+                f"Given channels:\n{channels_list} \nFounded channels: \n"
+                f"\n{channels}\n++++++++++++++++++++\nwidget:\t\t{widget}",
         )
 
         # add channels to channel selection
@@ -142,7 +146,7 @@ class TestFileWidget(TestBase):
             cw = widget.channel_selection
             self.channels = [cw.topLevelItem(_) for _ in range(cw.topLevelItemCount())]
         else:
-            return
+            return []
         self.processEvents(0.01)
         return self.channels
 

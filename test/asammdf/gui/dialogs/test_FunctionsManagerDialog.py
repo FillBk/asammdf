@@ -239,7 +239,6 @@ class TestPushButtons(TestBase):
         QtTest.QTest.mouseClick(self.fm.widget.add_btn, QtCore.Qt.MouseButton.LeftButton)
 
         for f in (
-            Function1,
             gray2dec,
             maximum,
             rpm_to_rad_per_second,

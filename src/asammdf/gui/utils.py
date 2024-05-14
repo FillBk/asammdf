@@ -1256,7 +1256,7 @@ def check_generated_function(func, trace, function_source, silent, parent=None):
         else:
             trace = f"Complete signal: {format_exc()}"
     else:
-        if not isinstance(res, (tuple, list, np.array)):
+        if not (isinstance(res, (tuple, list)) or isinstance(res, np.array.__class__)):
             complete_signal = False
             if trace:
                 trace += "\n\nComplete signal: The function did not return an list, tuple or np.array"

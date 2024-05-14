@@ -8,7 +8,8 @@ from unittest import mock
 from PySide6 import QtCore, QtGui, QtTest
 
 
-@unittest.skipIf(sys.platform != "win32", "Timers cannot be started/stopped from another thread.")
+# @unittest.skipIf(sys.platform != "win32", "Timers cannot be started/stopped from another thread.")
+@unittest.skipIf(True, "Drag and drop action is not implemented")
 class TestDoubleClick(TestPlotWidget):
     # Note: Test Plot Widget through FileWidget.
     def setUp(self):

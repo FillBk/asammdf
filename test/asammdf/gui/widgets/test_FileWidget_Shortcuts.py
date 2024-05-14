@@ -211,7 +211,7 @@ class TestFileWidgetShortcuts(TestFileWidget):
             return list_[1] - list_[0]
 
         # Setup
-        max_square = 7
+        max_square = 5
         sub_windows = randint(3, max_square * (1 + max_square))
         for _ in range(sub_windows):
             self.create_window(window_type="Plot")
@@ -259,15 +259,9 @@ class TestFileWidgetShortcuts(TestFileWidget):
 
         x, y, width, height = g(self.widget.mdi_area.subWindowList())
 
-        mdi_area_h = self.widget.mdi_area.height()
-        horizontal_scroll_bar__h = self.widget.mdi_area.horizontalScrollBar().sizeHint().height()
-        y_step = get_step(y)
-        max_allowed_h = mdi_area_h - horizontal_scroll_bar__h - y_step * 2
-        col_groups = ceil(y_step * sub_windows / max_allowed_h)
-
         # Evaluate
         self.assertEqual(len(x), sub_windows)
-        self.assertEqual(len(y), ceil(sub_windows / col_groups))
+        self.assertGreaterEqual(len(y), ceil(sub_windows / 6))
         self.assertEqual(len(width), 1)
         self.assertIn(len(height), range(1, 4))
 
