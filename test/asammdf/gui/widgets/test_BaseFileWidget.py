@@ -51,7 +51,6 @@ class TestFileWidget(TestBase):
         else:
             self.widget = FileWidget(measurement_file, *args)
         self.widget.channel_view.setCurrentIndex(0)
-        self.widget.update_all_channel_trees
         self.processEvents()
         self.widget.showMaximized()
 
